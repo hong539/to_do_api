@@ -8,68 +8,77 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// Task represents a to do item
-type Task struct {
-	ID      string `json:"id,omitempty"`
-	Title   string `json:"title,omitempty"`
-	Content string `json:"content,omitempty"`
+type Todo struct {
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
-// tasks array represents in-memory storage for tasks
-var tasks []Task
+var todos []Todo
 
-// GetTasksEndpoint returns all tasks
-func GetTasksEndpoint(w http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(w).Encode(tasks)
+func main() {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/todos", GetTodos).Methods("GET")
+	router.HandleFunc("/todos/{id}", GetTodo).Methods("GET")
+	router.HandleFunc("/todos", AddTodo).Methods("POST")
+	router.HandleFunc("/todos/{id}", UpdateTodo).Methods("PUT")
+	router.HandleFunc("/todos/{id}", DeleteTodo).Methods("DELETE")
+
+	log.Println("API server is running on port 8000...")
+	log.Fatal(http.ListenAndServe(":8000", router))
 }
 
-// GetTaskEndpoint returns a single task by ID
-func GetTaskEndpoint(w http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	for _, item := range tasks {
-		if item.ID == params["id"] {
-			json.NewEncoder(w).Encode(item)
+func GetTodos(w http.ResponseWriter, r *http.Request) {
+	json.NewEncoder(w).Encode(todos)
+	log.Println("GetTodos: successfully get all todos.")
+}
+
+func GetTodo(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for _, todo := range todos {
+		if todo.ID == params["id"] {
+			json.NewEncoder(w).Encode(todo)
+			log.Println("GetTodo: successfully get todo with ID ", todo.ID)
 			return
 		}
 	}
-	json.NewEncoder(w).Encode(&Task{})
+	json.NewEncoder(w).Encode(&Todo{})
+	log.Println("GetTodo: todo with ID ", params["id"], " is not found.")
 }
 
-// CreateTaskEndpoint creates a new task
-func CreateTaskEndpoint(w http.ResponseWriter, req *http.Request) {
-	var task Task
-	_ = json.NewDecoder(req.Body).Decode(&task)
-	tasks = append(tasks, task)
-	json.NewEncoder(w).Encode(task)
+func AddTodo(w http.ResponseWriter, r *http.Request) {
+	var todo Todo
+	json.NewDecoder(r.Body).Decode(&todo)
+	todos = append(todos, todo)
+	json.NewEncoder(w).Encode(todo)
+	log.Println("AddTodo: successfully add todo with title ", todo.Title)
 }
 
-// DeleteTaskEndpoint deletes a task by ID
-func DeleteTaskEndpoint(w http.ResponseWriter, req *http.Request) {
-	params := mux.Vars(req)
-	for index, item := range tasks {
-		if item.ID == params["id"] {
-			tasks = append(tasks[:index], tasks[index+1:]...)
-			break
+func UpdateTodo(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for index, todo := range todos {
+		if todo.ID == params["id"] {
+			todos[index].Completed = true
+			json.NewEncoder(w).Encode(todos[index])
+			log.Println("UpdateTodo: successfully update todo with ID ", todo.ID)
+			return
 		}
 	}
-	json.NewEncoder(w).Encode(tasks)
+	json.NewEncoder(w).Encode(&Todo{})
+	log.Println("UpdateTodo: todo with ID ", params["id"], " is not found.")
 }
 
-func main() {
-	// Initialize router
-	router := mux.NewRouter()
-
-	// Add sample data to the tasks array
-	tasks = append(tasks, Task{ID: "1", Title: "Task 1", Content: "Content 1"})
-	tasks = append(tasks, Task{ID: "2", Title: "Task 2", Content: "Content 2"})
-
-	// Register endpoints
-	router.HandleFunc("/tasks", GetTasksEndpoint).Methods("GET")
-	router.HandleFunc("/tasks/{id}", GetTaskEndpoint).Methods("GET")
-	router.HandleFunc("/tasks", CreateTaskEndpoint).Methods("POST")
-	router.HandleFunc("/tasks/{id}", DeleteTaskEndpoint).Methods("DELETE")
-
-	// Start the server
-	log.Println("Starting server...")
-	log.Fatal(http.ListenAndServe(":8080", router))
+func DeleteTodo(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	for index, todo := range todos {
+		if todo.ID == params["id"] {
+			todos = append(todos[:index], todos[index+1:]...)
+			json.NewEncoder(w).Encode(todo)
+			log.Println("DeleteTodo: successfully delete todo with ID ", todo.ID)
+			return
+		}
+	}
+	json.NewEncoder(w).Encode(&Todo{})
+	log.Println("DeleteTodo: todo with ID ", params["id"], " is not found.")
 }
