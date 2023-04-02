@@ -1,66 +1,91 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
-type Todo struct {
+type Task struct {
 	gorm.Model
-	Title       string `json:"title"`
-	Description string `json:"description"`
+	Title     string `json:"title"`
+	Completed bool   `json:"completed"`
 }
 
 var db *gorm.DB
 
 func main() {
-	// 連接資料庫
 	var err error
-	db, err = gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	db, err = gorm.Open(sqlite.Open("todo.db"), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		panic("failed to connect database")
 	}
 
-	// 自動建立資料表
-	db.AutoMigrate(&Todo{})
+	// 自動建立表格
+	db.AutoMigrate(&Task{})
 
-	// 設定router
-	router := mux.NewRouter()
+	r := mux.NewRouter()
+	r.HandleFunc("/tasks", getTasks).Methods("GET")
+	r.HandleFunc("/tasks", createTask).Methods("POST")
+	r.HandleFunc("/tasks/{id}", getTask).Methods("GET")
+	r.HandleFunc("/tasks/{id}", updateTask).Methods("PUT")
+	r.HandleFunc("/tasks/{id}", deleteTask).Methods("DELETE")
 
-	// 設定API endpoint
-	router.HandleFunc("/todos", getTodos).Methods("GET")
-	router.HandleFunc("/todos/{id}", getTodo).Methods("GET")
-	router.HandleFunc("/todos", addTodo).Methods("POST")
-	router.HandleFunc("/todos/{id}", updateTodo).Methods("PUT")
-	router.HandleFunc("/todos/{id}", deleteTodo).Methods("DELETE")
-
-	// 啟動API服務
-	log.Println("Starting server on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	fmt.Println("Server started on port 8000")
+	log.Fatal(http.ListenAndServe(":8000", r))
 }
 
-// 取得所有待辦事項列表
-func getTodos(w http.ResponseWriter, r *http.Request) {
-	var todos []Todo
-	db.Find(&todos)
+func getTasks(w http.ResponseWriter, r *http.Request) {
+	var tasks []Task
+	db.Find(&tasks)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(todos)
+	json.NewEncoder(w).Encode(tasks)
 }
 
-// 取得特定id的待辦事項
-func getTodo(w http.ResponseWriter, r *http.Request) {
-	params := mux.Vars(r)
-	var todo Todo
-	db.First(&todo, params["id"])
+func createTask(w http.ResponseWriter, r *http.Request) {
+	var task Task
+	json.NewDecoder(r.Body).Decode(&task)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(todo)
-}	
+	db.Create(&task)
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(task)
+}
+
+func getTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var task Task
+	db.First(&task, id)
+
+	json.NewEncoder(w).Encode(task)
+}
+
+func updateTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	var task Task
+	db.First(&task, id)
+
+	json.NewDecoder(r.Body).Decode(&task)
+
+	db.Save(&task)
+
+	json.NewEncoder(w).Encode(task)
+}
+
+func deleteTask(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	db.Delete(&Task{}, id)
+
+	w.WriteHeader(http.StatusNoContent)
+}
