@@ -4,17 +4,26 @@
 
 * API(application programming interface)
 * REST(Representational State Transfer) API
+* GraphQL
 
-## Which programming languages to coding an backend API?
+* Consider HTTP/1.x and HTTP/2 or even HTTP/3 ?
+* High performane?
 
-* Rust
+## Which programming languages/frameworks could do coding an backend API?
+
 * C
 * C++
 * C#
-* Java
 * Golang
-* Python
+    * net/http
+    * go-swagger(Swagger 2.0)
+* Java
 * Javascript
+    * node.js
+    * deno
 * php
-
-* High performane?
+* Python
+    * flask
+    * FastAPI (open standards for APIs: OpenAPI)
+* Rust
+    * Actix Web    
