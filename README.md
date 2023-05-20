@@ -1,8 +1,14 @@
 # to_do_api
 Make a to_do backend api with Unkown lanugases. lol
 
-## Test
+## develope
 
 ```shell
-#pending until architecture is finish
+poetry add fastapi
+poetry add "uvicorn[standard]"
+
+#test
+uvicorn main:app --reload
+
+#check URL
 ```
