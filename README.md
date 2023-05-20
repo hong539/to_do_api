@@ -7,6 +7,9 @@ Make a to_do backend api with Unkown lanugases. lol
 poetry add fastapi
 poetry add "uvicorn[standard]"
 
+#Activating the virtual environment
+poetry shell
+
 #test
 uvicorn main:app --reload
 
