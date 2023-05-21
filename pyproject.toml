@@ -11,6 +11,7 @@ packages = [{include = "to_do_api"}]
 python = "^3.8"
 fastapi = "^0.95.2"
 uvicorn = {extras = ["standard"], version = "^0.22.0"}
+httpx = "^0.24.1"
 
 
 [build-system]
