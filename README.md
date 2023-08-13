@@ -37,4 +37,8 @@ flask --app test_flask01 run
 #check URL
 http://127.0.0.1:8000/docs
 http://127.0.0.1:8000/redoc
+
+python main.py
+#test
+curl -X POST -H "Content-Type: application/json" -d '{"text": "Hello, world!", "color": "#000000", "bgcolor": "#FFFFFF"}' http://localhost:5000/qrcode > qrcode.jpg
 ```
