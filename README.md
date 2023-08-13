@@ -1,6 +1,12 @@
 # to_do_api
 Make a to_do backend api with Unkown lanugases. lol
 
+## prerequisites
+
+Python == 3.8.16
+pyenv+poetry
+Project dependcy detialls will be in pyproject.toml/poetry.lock
+
 ## development
 
 * HTTP/1.1
@@ -8,6 +14,7 @@ Make a to_do backend api with Unkown lanugases. lol
 * HTTP/3
 
 ```shell
+poetry add qrcode
 poetry add fastapi
 poetry add "uvicorn[standard]"
 poetry add httpx
