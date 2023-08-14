@@ -11,7 +11,7 @@ Make a to_do backend api with Unkown lanugases. lol
 * qrcode
 * Project dependcy detialls will be in pyproject.toml/poetry.lock
 
-## development
+## tips
 
 * HTTP/1.1
 * HTTP/2
