@@ -3,9 +3,13 @@ Make a to_do backend api with Unkown lanugases. lol
 
 ## prerequisites
 
-Python == 3.8.16
-pyenv+poetry
-Project dependcy detialls will be in pyproject.toml/poetry.lock
+* Python == 3.8.16
+* [pyenv+poetry](https://github.com/hong539/setup_dev_environment/blob/main/programing_languages/python/python.md)
+* [diagrams](https://github.com/mingrammer/diagrams)
+* [Graphviz](https://gitlab.com/graphviz/graphviz)
+* flask
+* qrcode
+* Project dependcy detialls will be in pyproject.toml/poetry.lock
 
 ## development
 
@@ -20,6 +24,7 @@ poetry add "uvicorn[standard]"
 poetry add httpx
 poetry add flask
 poetry add pytest
+poetry add diagrams
 
 #Activating the virtual environment
 poetry shell
